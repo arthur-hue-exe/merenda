@@ -14,7 +14,7 @@ const pageTitles: { [key: string]: string } = {
   '/stock': 'Gerenciamento de Estoque',
   '/consumption': 'Registro de Consumo',
   '/forecasting': 'Chat com IA', 
-  '/recipes': 'Assistente Culinário IA', // Novo título
+  '/recipe-ideas': 'Chat Culinário (Ideias)', // Novo título para o chat de receitas
   '/reports': 'Relatórios e Prestação de Contas',
 };
 

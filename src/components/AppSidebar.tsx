@@ -22,7 +22,7 @@ import {
   Utensils,
   PanelLeftOpen,
   PanelRightOpen,
-  ChefHat // Ícone para Receitas IA
+  Lightbulb // Ícone para Ideias de Receitas/Biblioteca Culinária
 } from 'lucide-react';
 
 const navItems = [
@@ -30,7 +30,7 @@ const navItems = [
   { href: '/stock', label: 'Estoque', icon: Archive },
   { href: '/consumption', label: 'Consumo', icon: UtensilsCrossed },
   { href: '/forecasting', label: 'Chat IA', icon: MessageSquare },
-  { href: '/recipes', label: 'Receitas IA', icon: ChefHat }, // Novo item
+  { href: '/recipe-ideas', label: 'Chat Culinário', icon: Lightbulb }, // Novo item para Chat de Receitas
   { href: '/reports', label: 'Relatórios', icon: FileText },
 ];
 
