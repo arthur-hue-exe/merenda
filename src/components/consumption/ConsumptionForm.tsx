@@ -39,11 +39,13 @@ const consumptionItemSchema = z.object({
   itemName: z.string(), // Will be populated
   quantityConsumed: z.coerce.number().min(0.01, "Quantidade deve ser maior que zero."),
   unit: z.string(), // Will be populated
+  // costAtTimeOfConsumption will be handled by AppDataContext
 });
 
 const formSchema = z.object({
   date: z.string().refine((date) => !isNaN(Date.parse(date)), { message: "Data inválida." }),
   classOrStudent: z.string().min(2, "Turma/Aluno deve ter pelo menos 2 caracteres."),
+  numberOfStudents: z.coerce.number().min(1, "Número de alunos deve ser pelo menos 1."),
   items: z.array(consumptionItemSchema).min(1, "Adicione pelo menos um item consumido."),
   notes: z.string().optional(),
 });
@@ -63,6 +65,7 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
     defaultValues: {
       date: new Date().toISOString().split('T')[0],
       classOrStudent: "",
+      numberOfStudents: 1,
       items: [],
       notes: "",
     },
@@ -78,6 +81,7 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
       form.reset({
         date: new Date().toISOString().split('T')[0],
         classOrStudent: "",
+        numberOfStudents: 1,
         items: [],
         notes: "",
       });
@@ -85,8 +89,9 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
   }, [isOpen, form]);
 
   const handleAddItem = () => {
-    if (stockItems.length > 0) {
-      const firstStockItem = stockItems[0];
+    const availableStockItems = stockItems.filter(si => si.quantity > 0);
+    if (availableStockItems.length > 0) {
+      const firstStockItem = availableStockItems[0];
       append({ 
         itemId: firstStockItem.id, 
         itemName: firstStockItem.name, 
@@ -107,11 +112,13 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
   };
 
   function onSubmit(values: ConsumptionFormValues) {
-     const processedItems = values.items.map(item => {
+    // itemName and unit are set by handleStockItemChange, but ensure they are current
+    const processedItems = values.items.map(item => {
         const stockItemDetails = stockItems.find(si => si.id === item.itemId);
         return {
-            ...item,
+            itemId: item.itemId,
             itemName: stockItemDetails?.name || item.itemName,
+            quantityConsumed: item.quantityConsumed,
             unit: stockItemDetails?.unit || item.unit,
         };
     });
@@ -130,7 +137,7 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="date"
@@ -152,6 +159,19 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
                     <FormLabel>Turma/Aluno</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: Turma 3A, João Silva" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="numberOfStudents"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nº de Alunos</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ex: 25" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,8 +202,8 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {stockItems.filter(si => si.quantity > 0).map(item => ( // Only show items with quantity > 0
-                              <SelectItem key={item.id} value={item.id}>{item.name} (Disp: {item.quantity} {item.unit})</SelectItem>
+                            {stockItems.filter(si => si.quantity > 0).map(item => ( 
+                              <SelectItem key={item.id} value={item.id}>{item.name} (Disp: {item.quantity} {item.unit}) (Custo: R${(item.cost || 0).toFixed(2)})</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -198,7 +218,7 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
                       <FormItem className="w-24">
                         <FormLabel className="text-xs">Qtd.</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="Qtd" {...field} />
+                          <Input type="number" step="any" placeholder="Qtd" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -241,4 +261,3 @@ export function ConsumptionForm({ isOpen, onOpenChange }: ConsumptionFormProps) 
     </Dialog>
   );
 }
-

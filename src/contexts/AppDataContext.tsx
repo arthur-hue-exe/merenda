@@ -2,7 +2,7 @@
 "use client";
 import type React from 'react';
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { StockItem, Delivery, ConsumptionRecord } from '@/types';
+import type { StockItem, ConsumptionRecord, ConsumptionItem } from '@/types';
 import { toast } from "@/hooks/use-toast";
 
 interface AppDataContextType {
@@ -12,14 +12,15 @@ interface AppDataContextType {
   deleteStockItem: (itemId: string) => void;
   findStockItemById: (itemId: string) => StockItem | undefined;
 
-  deliveries: Delivery[];
-  addDelivery: (delivery: Omit<Delivery, 'id'>) => void;
+  // Deliveries removidas
+  // deliveries: Delivery[];
+  // addDelivery: (delivery: Omit<Delivery, 'id'>) => void;
   
   consumptionRecords: ConsumptionRecord[];
-  addConsumptionRecord: (record: Omit<ConsumptionRecord, 'id'>) => void;
+  addConsumptionRecord: (record: Omit<ConsumptionRecord, 'id' | 'totalCost' | 'items'> & { items: Omit<ConsumptionItem, 'costAtTimeOfConsumption'>[], numberOfStudents: number }) => void;
 
   studentCount: number;
-  setStudentCount: (count: number) => void;
+  setStudentCount: (count: number) => void; // Mantido para contagem geral de alunos, se forecasting precisar
 
   isLoadingData: boolean;
 }
@@ -52,13 +53,12 @@ const usePersistentState = <T,>(key: string, initialValue: T): [T, React.Dispatc
 
 export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stockItems, setStockItems] = usePersistentState<StockItem[]>('merendaStockItems', []);
-  const [deliveries, setDeliveries] = usePersistentState<Delivery[]>('merendaDeliveries', []);
+  // const [deliveries, setDeliveries] = usePersistentState<Delivery[]>('merendaDeliveries', []); // Removido
   const [consumptionRecords, setConsumptionRecords] = usePersistentState<ConsumptionRecord[]>('merendaConsumptionRecords', []);
   const [studentCount, setStudentCount] = usePersistentState<number>('merendaStudentCount', 100);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
-    // Simulate initial data load
     setIsLoadingData(false);
   }, []);
 
@@ -82,53 +82,54 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return stockItems.find(item => item.id === itemId);
   }, [stockItems]);
 
-  const addDelivery = useCallback((delivery: Omit<Delivery, 'id'>) => {
-    const newDelivery = { ...delivery, id: crypto.randomUUID() };
-    setDeliveries(prev => [...prev, newDelivery]);
-    // Update stock based on delivery
-    newDelivery.items.forEach(deliveredItem => {
-      const stockItem = findStockItemById(deliveredItem.itemId);
-      if (stockItem) {
-        updateStockItem({ ...stockItem, quantity: stockItem.quantity + deliveredItem.quantity });
-      } else {
-        // Optionally add as a new stock item if it doesn't exist, or handle error
-        // For simplicity, we assume items are pre-registered or this is handled by user
-        console.warn(`Item ${deliveredItem.itemName} from delivery not found in stock. Consider adding it first.`);
-      }
-    });
-    toast({ title: "Entrega Registrada", description: `Entrega de ${newDelivery.supplier} registrada.` });
-  }, [setDeliveries, findStockItemById, updateStockItem]);
+  // addDelivery removido
 
-  const addConsumptionRecord = useCallback((record: Omit<ConsumptionRecord, 'id'>) => {
-    const newRecord = { ...record, id: crypto.randomUUID() };
+  const addConsumptionRecord = useCallback((record: Omit<ConsumptionRecord, 'id' | 'totalCost' | 'items'> & { items: Omit<ConsumptionItem, 'costAtTimeOfConsumption'>[], numberOfStudents: number }) => {
     let allItemsSufficient = true;
-    // Check stock before deducting
-    for (const consumedItem of newRecord.items) {
+    let calculatedTotalCost = 0;
+    const itemsWithCost: ConsumptionItem[] = [];
+
+    for (const consumedItem of record.items) {
       const stockItem = findStockItemById(consumedItem.itemId);
       if (!stockItem || stockItem.quantity < consumedItem.quantityConsumed) {
         allItemsSufficient = false;
         toast({ title: "Erro de Consumo", description: `Estoque insuficiente para ${consumedItem.itemName}.`, variant: "destructive" });
         break;
       }
+      const costAtTime = stockItem.cost || 0;
+      calculatedTotalCost += costAtTime * consumedItem.quantityConsumed;
+      itemsWithCost.push({
+        ...consumedItem,
+        costAtTimeOfConsumption: costAtTime,
+        unit: stockItem.unit, // Garantir que a unidade venha do StockItem
+        itemName: stockItem.name // Garantir que o nome venha do StockItem
+      });
     }
 
     if (allItemsSufficient) {
+      const newRecord: ConsumptionRecord = {
+        ...record,
+        id: crypto.randomUUID(),
+        items: itemsWithCost,
+        totalCost: calculatedTotalCost,
+      };
       setConsumptionRecords(prev => [...prev, newRecord]);
+      
       // Deduct from stock
       newRecord.items.forEach(consumedItem => {
         const stockItem = findStockItemById(consumedItem.itemId);
-        if (stockItem) { // Should always be true due to check above
+        if (stockItem) { 
           updateStockItem({ ...stockItem, quantity: stockItem.quantity - consumedItem.quantityConsumed });
         }
       });
-      toast({ title: "Consumo Registrado", description: `Consumo para ${newRecord.classOrStudent} registrado.` });
+      toast({ title: "Consumo Registrado", description: `Consumo para ${newRecord.classOrStudent} registrado com custo total de R$ ${calculatedTotalCost.toFixed(2)}.` });
     }
   }, [setConsumptionRecords, findStockItemById, updateStockItem]);
 
   return (
     <AppDataContext.Provider value={{ 
       stockItems, addStockItem, updateStockItem, deleteStockItem, findStockItemById,
-      deliveries, addDelivery,
+      // deliveries, addDelivery, // Removido
       consumptionRecords, addConsumptionRecord,
       studentCount, setStudentCount,
       isLoadingData 

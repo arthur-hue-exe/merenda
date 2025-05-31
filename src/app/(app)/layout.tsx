@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppSidebar } from '@/components/AppSidebar';
-import { AppHeader } from '@/components/AppHeader'; // Will be created
+import { AppHeader } from '@/components/AppHeader'; 
 import { SidebarInset } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 
@@ -12,9 +12,9 @@ import { usePathname } from 'next/navigation';
 const pageTitles: { [key: string]: string } = {
   '/dashboard': 'Dashboard',
   '/stock': 'Gerenciamento de Estoque',
-  '/deliveries': 'Rastreamento de Entregas',
+  // '/deliveries': 'Rastreamento de Entregas', // Removido
   '/consumption': 'Registro de Consumo',
-  '/forecasting': 'Previsão de Demanda (IA)',
+  '/forecasting': 'Chat com IA', // Atualizado
   '/reports': 'Relatórios e Prestação de Contas',
 };
 
@@ -24,7 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   
-  const currentPageKey = pathname.replace('/app', '');
+  const currentPageKey = pathname.replace('/app', ''); // Ensure /app prefix is removed if present
   const pageTitle = pageTitles[currentPageKey] || 'Merenda Inteligente';
 
 

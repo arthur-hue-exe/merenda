@@ -2,8 +2,9 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow to analyze historical consumption and delivery data
+ * @fileOverview This file defines a Genkit flow to analyze historical consumption data
  * and suggest adjustments to the demand forecast.
+ * (NOTE: Delivery history has been removed from this flow)
  *
  * - suggestDemandAdjustments - A function that triggers the demand adjustment suggestions.
  * - SuggestDemandAdjustmentsInput - The input type for the suggestDemandAdjustments function.
@@ -19,11 +20,11 @@ const SuggestDemandAdjustmentsInputSchema = z.object({
     .describe(
       'Historical consumption data, formatted as a string (e.g., JSON array of objects with date and quantity fields).'
     ),
-  deliveryHistory: z
-    .string()
-    .describe(
-      'Historical delivery data, formatted as a string (e.g., JSON array of objects with date, item, and quantity fields).'
-    ),
+  // deliveryHistory: z // Removido
+  //   .string()
+  //   .describe(
+  //     'Historical delivery data, formatted as a string (e.g., JSON array of objects with date, item, and quantity fields).'
+  //   ),
   studentCount: z.number().describe('The current number of students.'),
 });
 export type SuggestDemandAdjustmentsInput = z.infer<typeof SuggestDemandAdjustmentsInputSchema>;
@@ -47,20 +48,19 @@ const prompt = ai.definePrompt({
   name: 'suggestDemandAdjustmentsPrompt',
   input: {schema: SuggestDemandAdjustmentsInputSchema},
   output: {schema: SuggestDemandAdjustmentsOutputSchema},
-  prompt: `You are an AI assistant that analyzes school food consumption and delivery data to suggest adjustments to demand forecasts.
+  prompt: `You are an AI assistant that analyzes school food consumption data to suggest adjustments to demand forecasts.
 
 Analyze the following data to identify patterns, seasonal variations, and potential issues (like overstocking or shortages).
 Consider the number of students when making your suggestions.
 
 Consumption History: {{{consumptionHistory}}}
-Delivery History: {{{deliveryHistory}}}
 Number of Students: {{{studentCount}}}
 
 Based on this analysis, suggest concrete adjustments to the demand forecast, explaining your reasoning.
 Focus on quantities of ingredients to order.
 
 Format your response as a concise paragraph.
-`, // Ensure prompt is well-formatted and clear
+`,
 });
 
 const suggestDemandAdjustmentsFlow = ai.defineFlow(

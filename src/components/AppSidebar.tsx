@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Archive,
-  Truck,
+  // Truck, // Removido
   UtensilsCrossed,
-  Lightbulb,
+  MessageSquare, // Ícone para Chat IA (Previsão IA)
   FileText,
   Utensils,
   PanelLeftOpen,
@@ -28,9 +28,9 @@ import {
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/stock', label: 'Estoque', icon: Archive },
-  { href: '/deliveries', label: 'Entregas', icon: Truck },
+  // { href: '/deliveries', label: 'Entregas', icon: Truck }, // Removido
   { href: '/consumption', label: 'Consumo', icon: UtensilsCrossed },
-  { href: '/forecasting', label: 'Previsão IA', icon: Lightbulb },
+  { href: '/forecasting', label: 'Chat IA', icon: MessageSquare }, // Atualizado
   { href: '/reports', label: 'Relatórios', icon: FileText },
 ];
 

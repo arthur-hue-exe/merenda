@@ -32,6 +32,7 @@ const formSchema = z.object({
   unit: z.string().min(1, { message: "Unidade é obrigatória." }),
   expiryDate: z.string().refine((date) => !isNaN(Date.parse(date)), { message: "Data de validade inválida." }),
   supplier: z.string().min(2, { message: "Fornecedor deve ter pelo menos 2 caracteres." }),
+  cost: z.coerce.number().min(0, { message: "Custo não pode ser negativo."}).optional(),
 });
 
 type StockFormValues = z.infer<typeof formSchema>;
@@ -47,26 +48,33 @@ export function StockForm({ isOpen, onOpenChange, itemToEdit }: StockFormProps) 
 
   const form = useForm<StockFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: itemToEdit || {
+    defaultValues: {
       name: "",
       quantity: 0,
       unit: "",
-      expiryDate: new Date().toISOString().split('T')[0], // Default to today
+      expiryDate: new Date().toISOString().split('T')[0],
       supplier: "",
+      cost: 0,
     },
   });
 
   useEffect(() => {
-    if (itemToEdit) {
-      form.reset(itemToEdit);
-    } else {
-      form.reset({
-        name: "",
-        quantity: 0,
-        unit: "",
-        expiryDate: new Date().toISOString().split('T')[0],
-        supplier: "",
-      });
+    if (isOpen) {
+      if (itemToEdit) {
+        form.reset({
+            ...itemToEdit,
+            cost: itemToEdit.cost || 0, // Garante que cost seja um número
+        });
+      } else {
+        form.reset({
+          name: "",
+          quantity: 0,
+          unit: "",
+          expiryDate: new Date().toISOString().split('T')[0],
+          supplier: "",
+          cost: 0,
+        });
+      }
     }
   }, [itemToEdit, form, isOpen]);
 
@@ -78,7 +86,7 @@ export function StockForm({ isOpen, onOpenChange, itemToEdit }: StockFormProps) 
       addStockItem(values);
     }
     onOpenChange(false);
-    form.reset();
+    // form.reset(); // Reset é tratado no useEffect
   }
 
   return (
@@ -91,7 +99,7 @@ export function StockForm({ isOpen, onOpenChange, itemToEdit }: StockFormProps) 
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
             <FormField
               control={form.control}
               name="name"
@@ -113,7 +121,7 @@ export function StockForm({ isOpen, onOpenChange, itemToEdit }: StockFormProps) 
                   <FormItem>
                     <FormLabel>Quantidade</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Ex: 50" {...field} />
+                      <Input type="number" step="any" placeholder="Ex: 50" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,19 +141,34 @@ export function StockForm({ isOpen, onOpenChange, itemToEdit }: StockFormProps) 
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="expiryDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data de Validade</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="expiryDate"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Data de Validade</FormLabel>
+                    <FormControl>
+                        <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="cost"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Custo Unitário (R$)</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="0.01" placeholder="Ex: 2.50" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
             <FormField
               control={form.control}
               name="supplier"
