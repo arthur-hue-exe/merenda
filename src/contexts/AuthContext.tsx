@@ -16,6 +16,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Hardcoded credentials for prototype
 const MOCK_USER = "admin";
 const MOCK_PASS = "admin123";
+const AUTH_COOKIE_NAME = 'merendaInteligenteAuth';
+
+// Helper function to manage cookies
+const getCookie = (name: string): string | undefined => {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  if (match) return match[2];
+  return undefined;
+};
+
+const setCookie = (name: string, value: string, days: number) => {
+  if (typeof document === 'undefined') return;
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+};
+
+const removeCookie = (name: string) => {
+  if (typeof document === 'undefined') return;
+  document.cookie = name + '=; Max-Age=-99999999; path=/';
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,9 +48,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
-    // Check localStorage for persisted auth state
-    const storedAuth = localStorage.getItem('merendaInteligenteAuth');
-    if (storedAuth === 'true') {
+    // Check cookie for persisted auth state
+    const authCookie = getCookie(AUTH_COOKIE_NAME);
+    if (authCookie === 'true') {
       setIsAuthenticated(true);
     }
     setIsLoading(false);
@@ -37,19 +62,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await new Promise(resolve => setTimeout(resolve, 500));
     if (user === MOCK_USER && pass === MOCK_PASS) {
       setIsAuthenticated(true);
-      localStorage.setItem('merendaInteligenteAuth', 'true');
+      setCookie(AUTH_COOKIE_NAME, 'true', 1); // Set cookie for 1 day
       setIsLoading(false);
       return true;
     }
     setIsAuthenticated(false);
-    localStorage.removeItem('merendaInteligenteAuth');
+    removeCookie(AUTH_COOKIE_NAME);
     setIsLoading(false);
     return false;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('merendaInteligenteAuth');
+    removeCookie(AUTH_COOKIE_NAME);
     router.push('/login');
   };
 
