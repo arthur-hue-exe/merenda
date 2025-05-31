@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -12,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { ChefHat, Loader2, Lightbulb } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ReactMarkdown from 'react-markdown';
-import { GenerateRecipeInputSchema, type GenerateRecipeInput, type GenerateRecipeOutput } from '@/ai/flows/generate-recipe-flow';
+import { GenerateRecipeInputSchema, type GenerateRecipeInput, type GenerateRecipeOutput } from '@/types'; // Importado de @/types
 import { getAiRecipe } from './actions';
 
 export default function RecipesPage() {
