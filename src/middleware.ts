@@ -6,26 +6,34 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = request.cookies.get('merendaInteligenteAuth')?.value === 'true';
   const { pathname } = request.nextUrl;
 
-  // If trying to access login page while authenticated, redirect to dashboard
-  if (isAuthenticated && pathname.startsWith('/login')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  // Define protected paths (actual URL paths, not filesystem paths using route groups)
+  const protectedPaths = ['/dashboard', '/stock', '/deliveries', '/consumption', '/forecasting', '/reports'];
+  const isProtectedRoute = protectedPaths.some(p => pathname.startsWith(p));
 
-  // If trying to access protected routes while not authenticated, redirect to login
-  if (!isAuthenticated && pathname.startsWith('/app')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-  
-  // Special handling for root path if not an API call or internal Next.js path
-  if (pathname === '/' && !isAuthenticated && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
-     return NextResponse.redirect(new URL('/login', request.url));
-  }
-  if (pathname === '/' && isAuthenticated && !pathname.startsWith('/_next') && !pathname.startsWith('/api')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  const isAuthRoute = pathname.startsWith('/login');
+  const isRootRoute = pathname === '/';
 
-
-  return NextResponse.next();
+  if (isAuthenticated) {
+    // User is authenticated
+    if (isAuthRoute) {
+      // Authenticated user trying to access login page, redirect to dashboard
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    if (isRootRoute) {
+      // Authenticated user trying to access root, redirect to dashboard
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    // For other authenticated scenarios (e.g., accessing a protected path like /dashboard, /stock), allow access
+    return NextResponse.next();
+  } else {
+    // User is NOT authenticated
+    if (isProtectedRoute || isRootRoute) {
+      // Unauthenticated user trying to access a protected route or root, redirect to login
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    // For other routes (like /login itself, or other public pages if any were defined), allow access
+    return NextResponse.next();
+  }
 }
 
 export const config = {
@@ -37,8 +45,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - images (public images folder)
+     * - . (files with extensions, e.g. manifest.json, robots.txt in public folder)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|images).*)',
-    '/', // Match root path
+    '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.).*)',
   ],
 };
