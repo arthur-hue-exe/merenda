@@ -41,7 +41,7 @@ export default function LoginPage() {
           <CardTitle className="text-3xl font-bold">Merenda Inteligente</CardTitle>
           <CardDescription>Acesse para gerenciar a merenda escolar</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="text-center"> {/* Added text-center here */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="username">Usuário</Label>
@@ -81,4 +81,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
