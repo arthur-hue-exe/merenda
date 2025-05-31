@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Archive,
-  // Truck, // Removido
   UtensilsCrossed,
   MessageSquare, // Ícone para Chat IA (Previsão IA)
   FileText,
@@ -28,14 +27,13 @@ import {
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/stock', label: 'Estoque', icon: Archive },
-  // { href: '/deliveries', label: 'Entregas', icon: Truck }, // Removido
   { href: '/consumption', label: 'Consumo', icon: UtensilsCrossed },
-  { href: '/forecasting', label: 'Chat IA', icon: MessageSquare }, // Atualizado
+  { href: '/forecasting', label: 'Chat IA', icon: MessageSquare },
   { href: '/reports', label: 'Relatórios', icon: FileText },
 ];
 
 export function AppSidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname(); // ex: /dashboard, /stock
   const { open, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
 
   const handleLinkClick = () => {
@@ -58,13 +56,13 @@ export function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={`/app${item.href}`} passHref legacyBehavior>
+              <Link href={item.href} passHref legacyBehavior>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === `/app${item.href}`}
+                  isActive={pathname === item.href}
                   tooltip={{ children: item.label, className: "bg-primary text-primary-foreground" }}
                   onClick={handleLinkClick}
-                  className={pathname === `/app${item.href}` ? 
+                  className={pathname === item.href ? 
                     "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90" :
                     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}
                 >
