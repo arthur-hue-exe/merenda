@@ -12,9 +12,9 @@ import { usePathname } from 'next/navigation';
 const pageTitles: { [key: string]: string } = {
   '/dashboard': 'Dashboard',
   '/stock': 'Gerenciamento de Estoque',
-  // '/deliveries': 'Rastreamento de Entregas', // Removido
   '/consumption': 'Registro de Consumo',
-  '/forecasting': 'Chat com IA', // Atualizado
+  '/forecasting': 'Chat com IA', 
+  '/recipes': 'Assistente Culinário IA', // Novo título
   '/reports': 'Relatórios e Prestação de Contas',
 };
 
@@ -24,7 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   
-  const currentPageKey = pathname.replace('/app', ''); // Ensure /app prefix is removed if present
+  const currentPageKey = pathname.replace('/app', ''); 
   const pageTitle = pageTitles[currentPageKey] || 'Merenda Inteligente';
 
 

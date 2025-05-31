@@ -17,11 +17,12 @@ import {
   LayoutDashboard,
   Archive,
   UtensilsCrossed,
-  MessageSquare, // Ícone para Chat IA (Previsão IA)
+  MessageSquare, 
   FileText,
   Utensils,
   PanelLeftOpen,
-  PanelRightOpen
+  PanelRightOpen,
+  ChefHat // Ícone para Receitas IA
 } from 'lucide-react';
 
 const navItems = [
@@ -29,11 +30,12 @@ const navItems = [
   { href: '/stock', label: 'Estoque', icon: Archive },
   { href: '/consumption', label: 'Consumo', icon: UtensilsCrossed },
   { href: '/forecasting', label: 'Chat IA', icon: MessageSquare },
+  { href: '/recipes', label: 'Receitas IA', icon: ChefHat }, // Novo item
   { href: '/reports', label: 'Relatórios', icon: FileText },
 ];
 
 export function AppSidebar() {
-  const pathname = usePathname(); // ex: /dashboard, /stock
+  const pathname = usePathname(); 
   const { open, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
 
   const handleLinkClick = () => {

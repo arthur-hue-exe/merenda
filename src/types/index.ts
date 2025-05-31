@@ -8,8 +8,6 @@ export interface StockItem {
   cost?: number; // Custo unitário do item
 }
 
-// DeliveryItem e Delivery foram removidas
-
 export interface ConsumptionItem {
   itemId: string; // Corresponds to StockItem id
   itemName: string;
@@ -28,10 +26,8 @@ export interface ConsumptionRecord {
   notes?: string;
 }
 
-// HistoricalData não precisa mais de deliveries
 export interface HistoricalData {
   consumption: ConsumptionRecord[];
-  // deliveries: Delivery[]; // Removido
 }
 
 // Para Chat IA
@@ -40,15 +36,7 @@ export interface ChatMessage {
   text: string;
 }
 
-export interface GeneralChatInput {
-  userInput: string;
-  chatHistory?: ChatMessage[];
-}
-export interface GeneralChatOutput {
-  modelResponse: string;
-}
-
-// Para Relatório de Gastos IA
+// Para Relatório de Gastos IA (mantido para consistência com o fluxo existente)
 export interface GenerateSpendingReportInput {
   consumptionRecordsJSON: string; // JSON stringified
   stockItemsJSON: string; // JSON stringified
@@ -59,3 +47,12 @@ export interface GenerateSpendingReportInput {
 export interface GenerateSpendingReportOutput {
   reportText: string;
 }
+
+// Para Geração de Receitas IA (já definido no Zod schema, mas pode ser útil ter aqui)
+// As definições de GenerateRecipeInput e GenerateRecipeOutput são exportadas de
+// src/ai/flows/generate-recipe-flow.ts, não precisam ser duplicadas aqui
+// a menos que haja uma necessidade específica de desacoplamento ou variação.
+// Para este caso, vamos assumir que os tipos exportados pelo Zod são suficientes.
+
+// export interface GenerateRecipeInput { ... }
+// export interface GenerateRecipeOutput { ... }
