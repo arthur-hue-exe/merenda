@@ -32,11 +32,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 text-primary">
-            <Utensils size={32} />
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Utensils size={40} />
           </div>
           <CardTitle className="text-3xl font-bold">Merenda Inteligente</CardTitle>
           <CardDescription>Acesse para gerenciar a merenda escolar</CardDescription>
@@ -72,7 +72,7 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="text-center text-sm">
+        <CardFooter className="flex justify-center text-sm mt-4">
           <p className="text-muted-foreground">
             Usuário padrão: admin / Senha padrão: admin123
           </p>
@@ -81,3 +81,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

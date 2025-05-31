@@ -65,7 +65,7 @@ export default function ChatPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden p-0">
-          <ScrollArea ref={scrollAreaRef} className="h-full p-4 space-y-4">
+          <ScrollArea ref={scrollAreaRef} className="h-full p-4 space-y-3"> {/* Reduced space-y from 4 to 3 */}
             {messages.map((msg, index) => (
               <div
                 key={index}
@@ -84,7 +84,7 @@ export default function ChatPage() {
                   }`}
                 >
                   {/* Basic markdown-like newlines */}
-                  {msg.text.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+                  {msg.text.split('\n').map((line, i) => <p key={i} className="my-0.5">{line}</p>)} {/* Added small margin to paragraphs */}
                 </div>
                 {msg.role === "user" && (
                   <AvatarIcon role="user" />
@@ -135,3 +135,4 @@ const AvatarIcon = ({ role }: { role: 'user' | 'model'}) => {
         </div>
     )
 }
+
