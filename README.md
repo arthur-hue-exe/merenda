@@ -1,1 +1,1 @@
-by Arthur
+by Arthur Hackathon 2025 ipog
